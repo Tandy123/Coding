@@ -36,7 +36,7 @@ public:
         return false;
     }
 
-	bool hasPathCore(char *matrix, int rows, int cols, int row, int col, char *str, int &pathLength, bool *visited)
+    bool hasPathCore(char *matrix, int rows, int cols, int row, int col, char *str, int &pathLength, bool *visited)
     {
         if(str[pathLength] == '\0')
         {
