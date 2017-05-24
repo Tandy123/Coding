@@ -117,8 +117,8 @@ public:
         }
         else if(pNode->next != NULL)
         {
-			TreeLinkNode *pCurrent = pNode;
-			TreeLinkNode *pParent = pNode->next;
+	    TreeLinkNode *pCurrent = pNode;
+	    TreeLinkNode *pParent = pNode->next;
             while(pParent != NULL && pCurrent == pParent->right)
             {
                 pCurrent = pParent;
