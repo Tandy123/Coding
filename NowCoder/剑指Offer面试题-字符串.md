@@ -60,3 +60,62 @@ public:
 	}
 };
 ```
+
+### 面试题19-正则表达式匹配
+
+#### 题目描述
+
+请实现一个函数用来匹配包括'.'和'*'的正则表达式。模式中的字符'.'表示任意一个字符，而'*'表示它前面的字符可以出现任意次（包含0次）。 在本题中，匹配是指字符串的所有字符匹配整个模式。例如，字符串"aaa"与模式"a.a"和"ab*ac*a"匹配，但是与"aa.a"和"ab*a"均不匹配
+
+#### 分析
+
+分情况考虑
+
+- 第二个字符不是*
+- 第二个字符是*
+
+#### 代码
+```c
+class Solution {
+public:
+    bool match(char* str, char* pattern)
+    {
+    	if(str == nullptr || pattern == nullptr)
+        {
+            return false;
+        }
+        return matchCore(str, pattern);
+    }
+  	bool matchCore(char *str, char *pattern)
+    {
+        if(*str ==  '\0' && *pattern == '\0')//if str and pattern both over
+        {
+            return true;
+        }
+        if(*str != '\0' && *pattern == '\0')//if str over and pattern does't over
+        {
+            return false;
+        }
+      	if(*(pattern + 1) == '*')//if the next character of pattern is *
+        {
+            if(*str ==  *pattern || (*pattern == '.' && *str != '\0'))
+            //if current chars are match 
+            //or the current char of pattern is . and str is not over
+            {
+                return matchCore(str + 1, pattern + 2)
+                    || matchCore(str + 1, pattern)
+                    || matchCore(str, pattern + 2);
+            }
+            else//if not match and pattern is not . or str is over
+            {
+                return matchCore(str, pattern + 2);
+            }
+        }
+        else if(*str == *pattern || ((*pattern == '.' && *str != '\0')))
+        {
+            return matchCore(str + 1, pattern + 1);
+        }
+        return false;
+    }
+};
+```
