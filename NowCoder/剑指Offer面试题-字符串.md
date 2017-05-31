@@ -65,7 +65,7 @@ public:
 
 #### 题目描述
 
-请实现一个函数用来匹配包括'.'和'*'的正则表达式。模式中的字符'.'表示任意一个字符，而'*'表示它前面的字符可以出现任意次（包含0次）。 在本题中，匹配是指字符串的所有字符匹配整个模式。例如，字符串"aaa"与模式"a.a"和"ab*ac*a"匹配，但是与"aa.a"和"ab*a"均不匹配
+请实现一个函数用来匹配包括'.'和'\*'的正则表达式。模式中的字符'.'表示任意一个字符，而'\*'表示它前面的字符可以出现任意次（包含0次）。 在本题中，匹配是指字符串的所有字符匹配整个模式。例如，字符串"aaa"与模式"a.a"和"ab\*ac\*a"匹配，但是与"aa.a"和"ab\*a"均不匹配
 
 #### 分析
 
@@ -116,6 +116,62 @@ public:
             return matchCore(str + 1, pattern + 1);
         }
         return false;
+    }
+};
+```
+
+### 面试题20-表示数值的字符串
+
+#### 题目描述
+
+请实现一个函数用来判断字符串是否表示数值（包括整数和小数）。例如，字符串"+100","5e2","-123","3.1416"和"-1E-16"都表示数值。 但是"12e","1a3.14","1.2.3","+-5"和"12e+4.3"都不是。
+
+#### 分析
+
+记住：数值的字符串遵循模式：A[.[B]][e|EC]或者.B[e|EC]，其中A为数值的整数部分，B紧跟着小数点为数值的小数部分，C紧跟着’e‘或者’E‘为数值的指数部分  
+**注意：字符串传参的时候要改变指针指向时要传递地址，即双重指针**
+
+#### 代码
+```c++
+class Solution {
+public:
+    bool isNumeric(char* string)
+    {
+        if(string == nullptr)
+        {
+            return false;
+        }
+        bool isnumeric = isInteger(&string);
+        
+        if(*string == '.'){
+            ++string;
+            isnumeric = isUnsignedInteger(&string) || isnumeric;
+        }        
+        if(*string == 'E' || *string =='e'){
+            string++;
+            isnumeric = isInteger(&string) && isnumeric;
+        }
+        if(*string == '\0' && isnumeric){
+            return true;
+        }else{
+            return false;
+        }
+    }
+	bool isUnsignedInteger(char **string)
+    {
+        int flag = 0;
+        while(**string != '\0' && **string >= '0' && **string <= '9'){
+            (*string)++;
+            flag++;
+        }
+        return flag > 0;
+    } 
+    bool isInteger(char **string)
+    {
+        if(**string == '+' || **string == '-'){
+            (*string)++;
+        }
+        return isUnsignedInteger(string);
     }
 };
 ```
