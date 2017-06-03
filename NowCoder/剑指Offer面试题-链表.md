@@ -243,3 +243,149 @@ public:
     }
 };
 ```
+
+### 面试题24-反转链表
+
+#### 题目描述
+
+输入一个链表，反转链表后，输出链表的所有元素。
+
+#### 分析
+
+用三个指针，注意结束条件
+
+测试时考虑如下输入：输入链表头指针为nullptr或者链表中只有一个节点
+
+#### 代码
+
+- 第一种思路
+```c++
+/*
+struct ListNode {
+	int val;
+	struct ListNode *next;
+	ListNode(int x) :
+			val(x), next(NULL) {
+	}
+};*/
+class Solution {//4min
+public:
+    ListNode* ReverseList(ListNode* pHead) {
+		ListNode* pReverseHead = nullptr;
+        ListNode* pNode = pHead;
+        ListNode* pPre =nullptr;
+        while(pNode != nullptr){
+            ListNode* pNext = pNode->next;
+            if(pNext == NULL){
+                pReverseHead = pNode;
+            }
+           	pNode->next = pPre;
+            pPre = pNode;
+            pNode = pNext;
+        }
+        return pReverseHead;
+    }
+};
+```
+
+
+### 面试题25-合并两个排序的链表
+
+#### 题目描述
+
+输入两个单调递增的链表，输出两个链表合成后的链表，当然我们需要合成后的链表满足单调不减规则。
+
+#### 分析
+
+有两种思路：
+- 递归：注意结束条件
+- 非递归：注意处理新的头结点
+
+#### 代码
+
+- 递归版本：
+```c++
+/*
+struct ListNode {
+	int val;
+	struct ListNode *next;
+	ListNode(int x) :
+			val(x), next(NULL) {
+	}
+};*/
+class Solution {
+public:
+    ListNode* Merge(ListNode* pHead1, ListNode* pHead2)
+    {
+        if(pHead1 == NULL){
+            return pHead2;
+        }
+        if(pHead2 == NULL){
+            return pHead1;
+        }
+        ListNode* pNode = nullptr;
+        if(pHead1->val < pHead2->val){
+            pNode = pHead1;
+        	pNode->next = Merge(pHead1->next, pHead2);
+        }else{
+            pNode = pHead2;
+            pNode->next = Merge(pHead1, pHead2->next);
+        }
+        return pNode;
+    }
+};
+```
+
+- 非递归版：
+```c++
+/*
+struct ListNode {
+	int val;
+	struct ListNode *next;
+	ListNode(int x) :
+			val(x), next(NULL) {
+	}
+};*/
+class Solution {
+public:
+    ListNode* Merge(ListNode* pHead1, ListNode* pHead2)
+    {
+        if(pHead1 == NULL){
+            return pHead2;
+        }
+        if(pHead2 == NULL){
+            return pHead1;
+        }
+        ListNode* pMergeHead = NULL;
+        ListNode* pNode = NULL;
+        while(pHead1 != NULL && pHead2 != NULL){
+            if(pHead1->val < pHead2->val){
+                if(pMergeHead == NULL){
+                    pMergeHead = pHead1;
+                    pNode = pMergeHead;
+                }else{
+                    pNode->next = pHead1;
+                    pNode = pNode->next;
+                }
+                pHead1 = pHead1->next;//这句没写会死循环
+            }else{
+                if(pMergeHead == NULL){
+                    pMergeHead = pHead2;
+                    pNode = pMergeHead;
+                }else{
+                    pNode->next = pHead2;
+                    pNode = pNode->next;
+                }
+                pHead2 = pHead2->next;//这句没写会死循环
+            }
+        }
+        if(pHead1 == NULL){
+            pNode->next = pHead2;
+        }
+        if(pHead2 == NULL){
+            pNode->next = pHead1;
+        }
+        return pMergeHead;
+    }
+};
+```
