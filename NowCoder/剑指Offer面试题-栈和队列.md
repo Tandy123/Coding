@@ -135,3 +135,188 @@ template<typename T> T CStack<T>::deleteTail()
 	return tail;
 }
 ```
+
+### 面试题30-包含min函数的栈
+
+#### 题目描述
+
+定义栈的数据结构，请在该类型中实现一个能够得到栈最小元素的min函数。
+
+#### 分析
+借助辅助栈，面试的时候最好是可以像书上那样写成一个模板类
+
+#### 代码
+
+- 牛客版：
+````
+class Solution {
+public:
+    stack<int> m_data;
+    stack<int> m_min;
+    void push(int value) {
+        m_data.push(value);
+        if(m_min.size() == 0 || m_min.top() > value){
+            m_min.push(value);
+        }
+        else {
+            m_min.push(m_min.top());
+        }
+    }
+    void pop() {
+        //assert(m_data.size()>0 && m_min.size()>0);
+        m_data.pop();
+        m_min.pop();
+    }
+    int top() {
+       	//assert(m_data.size()>0);
+        return m_data.top();
+    }
+    int min() {
+        //assert(m_data.size()>0 && m_min.size()>0);
+        return m_min.top();
+    }
+};
+```
+- 剑指Offer版：
+```c++
+#pragma once
+
+#include <stack>
+#include <assert.h>
+
+template <typename T> class StackWithMin
+{
+public:
+    StackWithMin() {}
+    virtual ~StackWithMin() {}
+
+    T& top();
+    const T& top() const;
+
+    void push(const T& value);
+    void pop();
+
+    const T& min() const;
+
+    bool empty() const;
+    size_t size() const;
+
+private:
+    std::stack<T>   m_data;     // 数据栈，存放栈的所有元素
+    std::stack<T>   m_min;      // 辅助栈，存放栈的最小元素
+};
+
+template <typename T> void StackWithMin<T>::push(const T& value)
+{
+    // 把新元素添加到辅助栈
+    m_data.push(value);
+
+    // 当新元素比之前的最小元素小时，把新元素插入辅助栈里；
+    // 否则把之前的最小元素重复插入辅助栈里
+    if(m_min.size() == 0 || value < m_min.top())
+        m_min.push(value);
+    else
+        m_min.push(m_min.top());
+}
+
+template <typename T> void StackWithMin<T>::pop()
+{
+    assert(m_data.size() > 0 && m_min.size() > 0);
+
+    m_data.pop();
+    m_min.pop();
+}
+
+
+template <typename T> const T& StackWithMin<T>::min() const
+{
+    assert(m_data.size() > 0 && m_min.size() > 0);
+
+    return m_min.top();
+}
+
+template <typename T> T& StackWithMin<T>::top()
+{
+    return m_data.top();
+}
+
+template <typename T> const T& StackWithMin<T>::top() const
+{
+    return m_data.top();
+}
+
+template <typename T> bool StackWithMin<T>::empty() const
+{
+    return m_data.empty();
+}
+
+template <typename T> size_t StackWithMin<T>::size() const
+{
+    return m_data.size();
+}
+```
+
+### 面试题31-栈的压入、弹出序列
+
+#### 题目描述
+
+输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列1,2,3,4,5是某栈的压入顺序，序列4，5,3,2,1是该压栈序列对应的一个弹出序列，但4,3,5,1,2就不可能是该压栈序列的弹出序列。（注意：这两个序列的长度是相等的）
+
+#### 分析
+借助辅助栈，面试的时候最好是可以像书上那样写成一个模板类
+
+#### 代码
+
+- 剑指Offer版：
+````
+class Solution {
+public:
+    bool IsPopOrder(vector<int> pushV,vector<int> popV) {
+        bool bPossible = false;
+        if(!pushV.empty() && !popV.empty()){
+            stack<int> stackData;
+            int nextPush = 0;
+            int nextPop = 0;        
+            while(nextPop < popV.size()){
+  // 当辅助栈的栈顶元素不是要弹出的元素
+            	// 先压入一些数字入栈
+                while(stackData.empty() || stackData.top() != popV[nextPop]){
+// 如果所有数字都压入辅助栈了，退出循环                    
+·		if(nextPush == pushV.size()){
+                        break;
+                    }
+                    stackData.push(pushV[nextPush]);
+                    nextPush++;
+            	}
+                if(stackData.top() != popV[nextPop]){
+                    break;
+                }
+                stackData.pop();
+                nextPop++;
+            }
+            if(nextPush == pushV.size()&& nextPop == popV.size() && stackData.size() == 0){
+            	bPossible = true;
+            }
+        }
+        return bPossible;
+    }
+};
+```
+- 牛客版：
+```c++
+class Solution {
+public:
+    bool IsPopOrder(vector<int> pushV,vector<int> popV) {
+        if(pushV.size() == 0) return false;
+        vector<int> stack;
+        for(int i = 0,j = 0 ;i < pushV.size();){
+            stack.push_back(pushV[i++]);
+            while(j < popV.size() && stack.back() == popV[j]){
+                stack.pop_back();
+                j++;
+            }       
+        }
+        return stack.empty();
+    }
+};
+```

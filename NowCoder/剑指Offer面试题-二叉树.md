@@ -184,3 +184,320 @@ public:
     }
 };
 ```
+
+### 面试题27-二叉树的镜像
+
+#### 题目描述
+操作给定的二叉树，将其变换为源二叉树的镜像。
+
+#### 输入描述:
+二叉树的镜像定义：源二叉树 
+
+    	    8
+    	   /  \
+    	  6   10
+    	 / \  / \
+    	5  7 9 11
+    	镜像二叉树
+    	    8
+    	   /  \
+    	  10   6
+    	 / \  / \
+    	11 9 7  5 
+
+#### 分析
+
+递归实现
+
+#### 代码
+
+```c
+/*
+struct TreeNode {
+	int val;
+	struct TreeNode *left;
+	struct TreeNode *right;
+	TreeNode(int x) :
+			val(x), left(NULL), right(NULL) {
+	}
+};*/
+class Solution {
+public:
+    void Mirror(TreeNode *pRoot) {
+        if(pRoot == NULL){
+            return;
+        }
+        if(pRoot->left == NULL && pRoot->right == NULL){
+            return;
+        }
+        
+		TreeNode *pTemp = pRoot->left;
+        pRoot->left = pRoot->right;
+        pRoot->right = pTemp;
+        
+        if(pRoot->left){
+            Mirror(pRoot->left);
+        }
+        if(pRoot->right){
+            Mirror(pRoot->right);
+        }
+    }
+};
+```
+
+### 面试题28-对称的二叉树
+
+#### 题目描述
+请实现一个函数，用来判断一颗二叉树是不是对称的。注意，如果一个二叉树同此二叉树的镜像是同样的，定义其为对称的。
+
+#### 分析
+递归实现，前序遍历二叉树，比较中左右和中右左的序列，考虑空节点
+
+#### 代码
+
+```c
+/*
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+    TreeNode(int x) :
+            val(x), left(NULL), right(NULL) {
+    }
+};
+*/
+class Solution {
+public:
+    bool isSymmetrical(TreeNode* pRoot)
+    {
+    	return isSymmetrical(pRoot, pRoot);
+    }
+	bool isSymmetrical(TreeNode* pRoot1, TreeNode* pRoot2){
+        if(pRoot1 == NULL && pRoot2==NULL){
+            return true;
+        }
+        if(pRoot1 == NULL || pRoot2 == NULL){
+            return false;
+        }
+        if(pRoot1->val != pRoot2->val){
+            return false;
+        }
+        return isSymmetrical(pRoot1->left, pRoot2->right) && isSymmetrical(pRoot1->right, pRoot2->left);
+    }
+};
+```
+
+### 面试题32-1-不分行从上到下打印二叉树
+
+#### 题目描述
+从上往下打印出二叉树的每个节点，同层节点从左至右打印。
+
+#### 分析
+
+按层遍历，用队列实现，书上用的是双向队列deque，感觉并没有什么必要
+
+#### 代码
+
+```c
+/*
+struct TreeNode {
+	int val;
+	struct TreeNode *left;
+	struct TreeNode *right;
+	TreeNode(int x) :
+			val(x), left(NULL), right(NULL) {
+	}
+};*/
+class Solution {
+public:
+    vector<int> PrintFromTopToBottom(TreeNode* root) {
+		vector<int> res;
+        if(root == NULL){
+            return res;
+        }
+        queue<TreeNode* > qData;
+        qData.push(root);
+        while(!qData.empty()){
+            TreeNode* pTemp = qData.front();
+            if(pTemp->left != NULL){
+                qData.push(pTemp->left);
+            }
+            if(pTemp->right != NULL){
+                qData.push(pTemp->right);
+            }
+            res.push_back(pTemp->val);
+            qData.pop();
+        }
+        return res;
+    }
+};
+```
+
+### 面试题32-2-分行从上到下打印二叉树
+
+#### 题目描述
+从上到下按层打印二叉树，同一层的结点按从左到右的顺序打印，每一层打印到一行。
+
+#### 分析
+
+按层遍历，用队列实现，书上用的是双向队列deque，感觉并没有什么必要
+
+#### 代码
+
+```c
+struct BinaryTreeNode 
+{
+    int                    m_nValue; 
+    BinaryTreeNode*        m_pLeft;  
+    BinaryTreeNode*        m_pRight; 
+};
+void Print(BinaryTreeNode* pRoot)
+{
+	if (pRoot == nullptr)
+	{
+		return;
+	}
+	std::deque<BinaryTreeNode*> nodes;
+	nodes.push_back(pRoot);
+	int toBePrinted = 1;
+	int nextLevel = 0;
+	while (!nodes.empty()) {
+		BinaryTreeNode* pNode = nodes.front();
+		printf("%d ", pNode->m_nValue);
+		if (pNode->m_pLeft)
+		{
+			nodes.push_back(pNode->m_pLeft);
+			nextLevel++;
+		}
+		if (pNode->m_pRight)
+		{
+			nodes.push_back(pNode->m_pRight);
+			nextLevel++;
+		}
+		nodes.pop_front();
+		toBePrinted--;
+		if (toBePrinted == 0) {
+			toBePrinted = nextLevel;
+			nextLevel = 0;
+			printf("\n");
+		}
+	}
+}
+```
+
+### 面试题32-2-分行从上到下打印二叉树
+
+#### 题目描述
+从上到下按层打印二叉树，同一层的结点按从左到右的顺序打印，每一层打印到一行。
+
+#### 分析
+用队列进行层序遍历，同时用两个变量记录每层的数量，用于输出换行符
+
+#### 代码
+
+```c
+struct BinaryTreeNode 
+{
+    int                    m_nValue; 
+    BinaryTreeNode*        m_pLeft;  
+    BinaryTreeNode*        m_pRight; 
+};
+void Print(BinaryTreeNode* pRoot)
+{
+	if (pRoot == nullptr)
+	{
+		return;
+	}
+	std::deque<BinaryTreeNode*> nodes;
+	nodes.push_back(pRoot);
+	int toBePrinted = 1;
+	int nextLevel = 0;
+	while (!nodes.empty()) {
+		BinaryTreeNode* pNode = nodes.front();
+		printf("%d ", pNode->m_nValue);
+		if (pNode->m_pLeft)
+		{
+			nodes.push_back(pNode->m_pLeft);
+			nextLevel++;
+		}
+		if (pNode->m_pRight)
+		{
+			nodes.push_back(pNode->m_pRight);
+			nextLevel++;
+		}
+		nodes.pop_front();
+		toBePrinted--;
+		if (toBePrinted == 0) {
+			toBePrinted = nextLevel;
+			nextLevel = 0;
+			printf("\n");
+		}
+	}
+}
+```
+
+### 面试题32-3-按之字形顺序打印二叉树
+
+#### 题目描述
+（注：这道题在试题广场里可以搜到）  
+从上到下按层打印二叉树，同一层的结点按从左到右的顺序打印，每一层打印到一行。
+
+#### 分析
+用队列进行层序遍历，同时用两个变量记录每层的数量，用于输出换行符
+
+#### 代码
+
+```c
+/*
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+    TreeNode(int x) :
+            val(x), left(NULL), right(NULL) {
+    }
+};
+*/
+class Solution {
+public:
+    vector<vector<int> > Print(TreeNode* pRoot) {
+        vector<vector<int>> res;
+        if(pRoot == NULL){
+            return res;
+        }
+        stack<TreeNode*> level[2];
+        int current = 0;
+        int next = 1;
+        level[current].push(pRoot);
+        vector<int> temp;
+        while(!level[0].empty() || !level[1].empty()){
+            TreeNode* pTreeNode = level[current].top();
+            temp.push_back(pTreeNode->val);
+            level[current].pop();
+            if(current == 0){
+                if(pTreeNode->left != NULL){
+                    level[next].push(pTreeNode->left);
+                }
+                if(pTreeNode->right != NULL){
+                    level[next].push(pTreeNode->right);
+                }
+            }else{
+                
+                if(pTreeNode->right != NULL){
+                    level[next].push(pTreeNode->right);
+                }
+                if(pTreeNode->left != NULL){
+                    level[next].push(pTreeNode->left);
+                }
+            }
+            if(level[current].empty()){
+                res.push_back(temp);
+                temp.clear();
+                current = 1-current;
+                next = 1 - next;
+            }
+        }
+        return res;
+    }
+};
+```
