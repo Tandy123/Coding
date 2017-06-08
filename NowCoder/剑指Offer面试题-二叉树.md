@@ -501,3 +501,141 @@ public:
     }
 };
 ```
+
+### 面试题33-二叉搜索树的后序遍历序列
+
+#### 题目描述
+输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历的结果。如果是则输出Yes,否则输出No。假设输入的数组的任意两个数字都互不相同。
+
+#### 分析
+递归实现
+
+#### 代码
+- 剑指Offer版：
+```c
+class Solution {
+public:
+    bool VerifySquenceOfBST(vector<int> sequence) {
+		if(sequence.size() == 0){
+            return false;
+        }
+        return VerifySquenceOfBSTRecursive(sequence, 0, sequence.size()-1);
+    }
+    bool VerifySquenceOfBSTRecursive(vector<int> &sequence, int start, int end){
+        int root = sequence[end];
+        int i = start;
+        for(; i < end; ++i){
+            if(sequence[i] >= root){
+                break;
+            }
+        }
+        int j = i;
+        for(;j < end; ++j){
+            if(sequence[j]<root){
+                return false;
+            }
+        }
+        bool left = true;
+        if(i>start){
+            left = VerifySquenceOfBSTRecursive(sequence, start, i-1);
+        }
+        bool right = true;
+        if(i<end){
+            right = VerifySquenceOfBSTRecursive(sequence, i, end-1);
+        }
+        return left && right;
+    }
+};
+```
+- 牛客大神版：
+```c++
+class Solution {
+    bool judge(vector<int>& a, int l, int r){
+        if(l >= r) return true;
+        int i = r;
+        while(i > l && a[i - 1] > a[r]) --i;
+        for(int j = i - 1; j >= l; --j) if(a[j] > a[r]) return false;
+        return judge(a, l, i - 1) && (judge(a, i, r - 1));
+    }
+public:
+    bool VerifySquenceOfBST(vector<int> a) {
+        if(!a.size()) return false;
+        return judge(a, 0, a.size() - 1);
+    }
+};
+```
+- 牛客大神非递归：
+```c++
+class Solution {
+public:
+bool VerifySquenceOfBST(vector<int> sequence) {
+        int size = sequence.size();
+        if(0==size)return false;
+ 
+        int i = 0;
+        while(--size)
+        {
+            while(sequence[i++]<sequence[size]);
+            while(sequence[i++]>sequence[size]);
+ 
+            if(i<size)return false;
+            i=0;
+        }
+        return true;
+    }
+};
+```
+
+### 面试题34-二叉树中和为某一值的路径
+
+#### 题目描述
+输入一颗二叉树和一个整数，打印出二叉树中结点值的和为输入整数的所有路径。路径定义为从树的根结点开始往下一直到叶结点所经过的结点形成一条路径。
+
+#### 分析
+思路不难，就是写的时候要细心一点
+
+#### 代码
+- 剑指Offer版：
+```c
+/*
+struct TreeNode {
+	int val;
+	struct TreeNode *left;
+	struct TreeNode *right;
+	TreeNode(int x) :
+			val(x), left(NULL), right(NULL) {
+	}
+};*/
+class Solution {
+public:
+    vector<vector<int> > FindPath(TreeNode* root,int expectNumber) {
+        vector<vector<int>> res;
+        if(root == nullptr){
+            return res;
+        }
+		vector<TreeNode*> path;
+        FindPathRecursive(root, path, expectNumber, 0, res);
+        return res;
+    }
+    void FindPathRecursive(TreeNode* root, vector<TreeNode*> &path, int expectNumber, int currentNumber, vector<vector<int>> &res){
+        currentNumber += root->val;
+        path.push_back(root);
+        bool isLeaf = (root->left == NULL)&&(root->right == NULL);
+        if(currentNumber== expectNumber && isLeaf){
+            vector<TreeNode*>::iterator iter = path.begin();
+            vector<int> temp;
+           	for(; iter != path.end(); ++iter){
+                temp.push_back((*iter)->val);
+            }
+            res.push_back(temp);
+        }
+        if(root->left != NULL){
+            FindPathRecursive(root->left, path, expectNumber, currentNumber, res);
+        }
+        if(root->right != NULL){
+            FindPathRecursive(root->right, path, expectNumber, currentNumber, res);
+        }
+        path.pop_back();
+    }
+};
+```
