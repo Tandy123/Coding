@@ -639,3 +639,128 @@ public:
     }
 };
 ```
+
+### 面试题36-二叉搜索树与双向链表
+
+#### 题目描述
+输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向。
+
+#### 分析
+中序遍历，递归实现，注意每次递归返回时要记录当前链表的最后一个节点
+
+#### 代码
+```c
+/*
+struct TreeNode {
+	int val;
+	struct TreeNode *left;
+	struct TreeNode *right;
+	TreeNode(int x) :
+			val(x), left(NULL), right(NULL) {
+	}
+};*/
+class Solution {
+public:
+    TreeNode* Convert(TreeNode* pRootOfTree)
+    {
+     	TreeNode* pLastNodeInList = nullptr;
+        ConvertNode(pRootOfTree, &pLastNodeInList);
+        TreeNode* pHeadOfList = pLastNodeInList;
+        while(pHeadOfList != nullptr && pHeadOfList->left != NULL){
+            pHeadOfList = pHeadOfList->left;
+        }
+        return pHeadOfList;
+    }
+    void ConvertNode(TreeNode* pNode, TreeNode** pLastNodeInList){
+        if(pNode == NULL){
+            return;
+        }
+        if(pNode->left != NULL){
+            ConvertNode(pNode->left, pLastNodeInList);
+        }
+        pNode->left = *pLastNodeInList;
+        if(*pLastNodeInList != nullptr){
+            (*pLastNodeInList)->right = pNode;
+        }
+        *pLastNodeInList = pNode;
+        if(pNode->right != NULL){
+            ConvertNode(pNode->right, pLastNodeInList);
+        }
+    }
+};
+```
+
+### 面试题37-序列化二叉树
+
+#### 题目描述
+请实现两个函数，分别用来序列化和反序列化二叉树
+
+#### 分析
+题目的要求有点麻烦，要返回char*  
+只能先用string来做，最后转化为char\*，需要注意的地方，反序列化的时候，要传char\**，来记录指针的移动，因为要区分每个数字序列化的时候要用‘,’来对每个数字进行分割，反序列化的时候要注意把字符转成数字，这题真心麻烦
+
+#### 代码
+```c
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+    TreeNode(int x) :
+            val(x), left(NULL), right(NULL) {
+    }
+};
+*/
+class Solution {
+public:
+    char* Serialize(TreeNode *root) {    
+        if(root == NULL){
+            return NULL;
+        }
+        string str;
+        Serialize(root, str);
+        char* cstr = new char[str.length() + 1];
+        int i;
+        for(i = 0; i < str.length()+1; ++i){
+            cstr[i] = str[i];
+        }
+        cstr[i] = '\0';
+        return cstr;
+    }
+    void Serialize(TreeNode* root, string &str){
+        if(root == NULL){
+            str += '$';
+            return;
+        }
+        string val = to_string(root->val);
+        str+=val;
+        str += ',';
+        Serialize(root->left, str);
+        Serialize(root->right, str);
+    }
+    TreeNode* Deserialize(char *str) {
+    	if(str == nullptr){
+            return nullptr;
+        }
+        return Deserialize2(&str);
+    }
+    TreeNode* Deserialize2(char **str) {
+        if(**str == '$'){
+            ++(*str);
+            return nullptr;
+        }
+		int num = 0;
+        while(**str != '\0' && **str != ','){
+            num = num*10 + ((**str) - '0');
+            ++(*str);
+        }
+        TreeNode* pNode = new TreeNode(num);
+        if(**str == '\0')
+            return pNode;
+        else
+            (*str)++;
+        pNode->left = Deserialize2(str);
+        pNode->right = Deserialize2(str);
+        return pNode;
+    }
+};
+```

@@ -175,3 +175,129 @@ public:
     }
 };
 ```
+
+### 面试题38-字符串的排列
+
+#### 题目描述
+
+输入一个字符串,按字典序打印出该字符串中字符的所有排列。例如输入字符串abc,则打印出由字符a,b,c所能排列出来的所有字符串abc,acb,bac,bca,cab和cba。
+
+输入描述:  
+输入一个字符串,长度不超过9(可能有字符重复),字符只包括大小写字母。
+
+#### 分析
+
+和书上的有点不同，这里的输入字符可能重复，并且要求按照字典序输出，重点看一下第二个版本的代码，通过传值自动达到了按照字典序输出的要求
+
+#### 代码
+- 按书本上的思路来，考虑了字符重复的情况
+```c++
+class Solution {
+public:
+    vector<string> Permutation(string str) {
+       	vector<string> res;
+        if(str.length() == 0){
+            return res;
+        }
+        Permutation(str, 0, res);
+        sort(res.begin(), res.end());
+        return res;
+    }
+    void Permutation(string &str, int begin, vector<string> &res){
+        if(begin >= str.length()){
+            res.push_back(str);
+        }else{
+            for(int i = begin; i < str.length(); ++i){
+                if(begin != i && str[begin]==str[i]){
+                    continue;
+                }else{
+                    swap(str[begin],str[i]);
+                	Permutation(str, begin+1, res);
+                	swap(str[begin],str[i]);
+                }
+            }
+        }
+    }
+};
+```
+- 下面这个更简洁一点，把最后的排序去掉放到了最开始，传引用改为传值按书本上的思路来，考虑了字符重复的情况
+```c++
+class Solution {
+public:
+    vector<string> Permutation(string str) {
+       	vector<string> res;
+        if(str.length() == 0){
+            return res;
+        }
+sort(str.begin(), str.end());
+        Permutation(str, 0, res);
+        //sort(res.begin(), res.end());
+        return res;
+    }
+    void Permutation(string str, int begin, vector<string> &res){
+        if(begin >= str.length()){
+            res.push_back(str);
+        }else{
+            for(int i = begin; i < str.length(); ++i){
+                if(begin != i && str[begin]==str[i]){
+                    continue;
+                }else{
+                    swap(str[begin],str[i]);
+                	Permutation(str, begin+1, res);
+                	//swap(str[begin],str[i]);
+                }
+            }
+        }
+    }
+};
+```
+
+### 面试题38-2拓展-字符串的组合
+
+#### 题目描述
+
+题目：输入一个字符串，打印出该字符串中字符的所有组合。例如输入字符串abc，则打印出由字符a、b、c所能组合出来的所有字符串a、b、c、ab、ac、bc和abc。
+
+#### 分析
+
+递归实现，去重操作可放在左右调用stl进行
+
+#### 代码
+- 按书本上的思路来，考虑了字符重复的情况
+```c++
+class Solution {
+public:
+    void Combination(char *string)
+	{
+		if (string == NULL) {
+			return;
+		}
+		vector<char> result;
+		int i, length = strlen(string);
+		for (i = 1; i <= length; ++i)
+			Combination(string, i, result);
+	}
+	
+	void Combination(char *string, int number, vector<char> &result)
+	{
+		//assert(string != NULL);
+		if (number == 0)
+		{
+			static int num = 1;
+			printf("第%d个组合\t", num++);
+	
+			vector<char>::iterator iter = result.begin();
+			for (; iter != result.end(); ++iter)
+				printf("%c", *iter);
+			printf("\n");
+			return;
+		}
+		if (*string == '\0')
+			return;
+		result.push_back(*string);
+		Combination(string + 1, number - 1, result);
+		result.pop_back();
+		Combination(string + 1, number, result);
+	}
+};
+```
