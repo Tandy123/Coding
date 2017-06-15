@@ -127,3 +127,122 @@ public:
     }
 };
 ```
+
+
+### 面试题39-数组中出现超过一半的数字
+
+#### 题目描述
+
+数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。例如输入一个长度为9的数组{1,2,3,2,2,2,5,4,2}。由于数字2在数组中出现了5次，超过数组长度的一半，因此输出2。如果不存在则输出0。
+
+#### 分析
+
+- 最直接：
+	- 建议数字和次数的map，时间O(n)，空间O(n)
+- 排序：
+	- 先快排序整体排序，找中间的值，最终验证，时间O(nlogn)，空间O(1)
+	- 利用快排思想，借鉴partition，不断二分找到中间的值，最终验证，时间O(n)，空间O(1)
+- 最优：
+	- 根据正负抵消原理，超过一半的数至少可以抵消掉其他所的数，最终验证，时间O(n)，空间O(1)
+
+
+#### 代码
+- 思路1（略）
+- 思路2
+```c++
+class Solution {
+public:
+    int MoreThanHalfNum_Solution(vector<int> numbers) {
+    	bool isInputInvalid = false;
+        if(numbers.size() <= 0){
+            isInputInvalid = true;
+            return 0;
+        }
+        int start = 0;
+        int end = numbers.size()-1;
+        int middle = Partition(numbers, start, end);
+        while(middle != numbers.size()/2){
+         	if(middle < numbers.size()/2) {
+                start = middle + 1;
+                middle = Partition(numbers, start, end);
+            }  else{
+                end = middle - 1;
+                middle = Partition(numbers, start, end);
+            }
+        }
+     	int res = numbers[middle];
+       	if(!CheckMoreThanHalf(numbers, res)){
+            isInputInvalid = true;
+            res = 0;
+        }
+        return res;
+    }
+    int Partition(vector<int> &numbers, int start, int end){
+        if(end == start){
+            return end;
+        }
+        int index = rand()%(end - start) + start;
+        swap(numbers[index], numbers[end]);
+        int small = start - 1;
+        for(index = start; index <= end; ++index){
+            if(numbers[index] <= numbers[end]){
+                small++;
+                if(small != index){
+                    swap(numbers[index], numbers[small]);
+                }
+            }
+        }
+        return small;
+    }
+    bool CheckMoreThanHalf(const vector<int> &numbers, const int res){
+        int times = 0;
+        for(int i = 0; i < numbers.size(); ++i){
+            if(numbers[i] == res){
+                ++times;
+            }
+        }
+        return 2 * times > numbers.size()?true:false; 
+    }
+};
+```
+- 思路3
+```c++
+class Solution {
+public:
+    int MoreThanHalfNum_Solution(vector<int> numbers) {
+    	bool isInputInvalid = false;
+        if(numbers.size() <= 0){
+            isInputInvalid = true;
+            return 0;
+        }
+        int res = numbers[0];
+        int times = 1;
+        for(int i = 1; i < numbers.size(); ++i){
+            if(times == 0){
+                res = numbers[i];
+                times = 1;
+            }else{
+                if(numbers[i] == res){
+                    ++times;
+                }else{
+                    --times;
+                }
+            }
+        }
+       	if(!CheckMoreThanHalf(numbers, res)){
+            isInputInvalid = true;
+            res = 0;
+        }
+        return res;
+    }
+    bool CheckMoreThanHalf(const vector<int> &numbers, const int res){
+        int times = 0;
+        for(int i = 0; i < numbers.size(); ++i){
+            if(numbers[i] == res){
+                ++times;
+            }
+        }
+        return 2 * times > numbers.size()?true:false; 
+    }
+};
+```
