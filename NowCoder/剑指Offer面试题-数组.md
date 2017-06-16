@@ -338,3 +338,117 @@ public:
     }
 };
 ```
+
+### 面试题41-数据流中的中位数
+
+#### 题目描述
+如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。
+
+#### 分析
+
+- 利用最大堆和最小堆实现：
+	- 数据数量为偶数时，最大堆和最小堆里数据一样多;数据数量为奇数时，让最大堆中多一个数。
+	- 通过三次调整堆的操作保证最小堆的数都小于最大堆的数
+- 难点还在于heap相关的数据结构的使用
+
+#### 代码
+- 剑指Offer版
+```c++
+class Solution {
+public:
+    void Insert(int num)
+    {
+        if(((min.size()+max.size())&1) == 0){
+            if(max.size() > 0 && num < max[0]){
+                max.push_back(num);
+                push_heap(max.begin(), max.end(), less<int>());
+                num = max[0];
+                pop_heap(max.begin(), max.end(), less<int>());
+                max.pop_back();
+            }
+            min.push_back(num);
+            push_heap(min.begin(), min.end(), greater<int>());
+        }else{
+            if(min.size() > 0 && num > min[0]){
+                min.push_back(num);
+                push_heap(min.begin(), min.end(), greater<int>());
+                num = min[0];
+                pop_heap(min.begin(), min.end(), greater<int>());
+                min.pop_back();
+            }
+            max.push_back(num);
+            push_heap(max.begin(), max.end(), less<int>());
+        }
+    }
+
+    double GetMedian()
+    { 
+        int size = min.size() + max.size();
+        if(size == 0){
+            return 0;
+        }
+    	if((size&1) == 1){
+            return min[0];
+        }else{
+            return (min[0] + max[0])/2.0;
+        }
+    }
+private:
+    vector<int> min;
+    vector<int> max;
+};
+```
+- 牛客大神版（用了priority_queue）
+```c++
+class Solution {
+    priority_queue<int, vector<int>, less<int> > p;
+    priority_queue<int, vector<int>, greater<int> > q;
+     
+public:
+    void Insert(int num){
+        if(p.empty() || num <= p.top()) p.push(num);
+        else q.push(num);
+        if(p.size() == q.size() + 2) q.push(p.top()), p.pop();
+        if(p.size() + 1 == q.size()) p.push(q.top()), q.pop();
+    }
+    double GetMedian(){ 
+      return p.size() == q.size() ? (p.top() + q.top()) / 2.0 : p.top();
+    }
+};
+```
+
+### 面试题42-连续子数组的最大和
+
+#### 题目描述
+HZ偶尔会拿些专业问题来忽悠那些非计算机专业的同学。今天测试组开完会后,他又发话了:在古老的一维模式识别中,常常需要计算连续子向量的最大和,当向量全为正数的时候,问题很好解决。但是,如果向量中包含负数,是否应该包含某个负数,并期望旁边的正数会弥补它呢？例如:{6,-3,-2,7,-15,1,2,2},连续子向量的最大和为8(从第0个开始,到第3个为止)。你会不会被他忽悠住？(子向量的长度至少是1)
+
+#### 分析
+
+- 书中列举了举例分析和动态规划两种方法，其实异曲同工的，都是忽略掉之前的和为负数的情况，每次更新全局最大值
+
+#### 代码
+```c++
+class Solution {
+public:
+    bool InvalidInput = false;
+    int FindGreatestSumOfSubArray(vector<int> array) {
+    	if(array.size() == 0){
+            InvalidInput = true;
+            return 0;
+        }
+        int nCurSum = 0;
+        int nGreatestSum = 0x80000000;//32位的int，正数的范围是(0,0x7FFFFFFF),负数(0x80000000,0xFFFFFFFF)
+        for(int i = 0; i < array.size(); ++i){
+            if(nCurSum <= 0){
+                nCurSum = array[i];
+            }else{
+                nCurSum += array[i];
+            }
+            if(nCurSum > nGreatestSum){
+                nGreatestSum = nCurSum;
+            }
+        }
+        return nGreatestSum;
+    }
+};
+```
