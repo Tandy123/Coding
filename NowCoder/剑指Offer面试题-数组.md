@@ -246,3 +246,95 @@ public:
     }
 };
 ```
+
+### 面试题40-最小的K个数
+
+#### 题目描述
+输入n个整数，找出其中最小的K个数。例如输入4,5,1,6,2,7,3,8这8个数字，则最小的4个数字是1,2,3,4,。
+
+#### 分析
+
+- 思路1：
+利用快排的Partition函数找到第K大的数，时间O(n)，问题是会改变原有的数组
+- 思路2：
+利用红黑树结构的容器set实现O(1)时间找到k个数中的最大数，进行替换并维护一个最大堆，总的时间复杂度为O(nlogk)，这里注意set的使用
+
+
+#### 代码
+- 思路1
+```c++
+class Solution {
+public:
+    vector<int> GetLeastNumbers_Solution(vector<int> input, int k) {
+        vector<int> res;
+        if(k <= 0 || input.size() == 0 || input.size() < k){
+            return res;
+        }
+        int start = 0;
+        int end = input.size() - 1;
+        int index = Partition(input, start, end);
+        while(index != k - 1){
+            if(index < k - 1){
+                start = index + 1;
+                index = Partition(input, start, end);
+            }else{
+                end = index - 1;
+                index = Partition(input, start, end);
+            }
+        }
+        for(int i = 0; i < k && i < input.size(); ++i){
+            res.push_back(input[i]);
+        }
+        return res;
+    }
+    int Partition(vector<int> &input, int start, int end){
+        if(start == end){
+            return start;
+        }
+        int index = rand()%(end - start) + start;
+        swap(input[index], input[end]);
+        int small = start - 1;
+        for(index = start; index <= end; ++index){
+            if(input[index] <= input[end]){
+                small++;
+                if(small != index){
+                    swap(input[small], input[index]);
+                }
+            }
+        }
+        return small;
+    }
+};
+```
+- 思路2
+```c++
+class Solution {
+public:
+    typedef multiset<int, greater<int>> intSet;
+    typedef multiset<int, greater<int>>::iterator setIterator;
+    vector<int> GetLeastNumbers_Solution(vector<int> input, int k) {
+        vector<int> res;
+        intSet leastNumbers;
+        if(k <= 0 || input.size() == 0 || input.size() < k){
+            return res;
+        }
+        vector<int>::const_iterator iter = input.begin();
+        for(; iter!= input.end(); ++iter){
+            if(leastNumbers.size()<k){
+                leastNumbers.insert(*iter);
+            }else{
+                setIterator iterGreatest = leastNumbers.begin();
+                if(*iter < *(leastNumbers.begin())){
+                    leastNumbers.erase(iterGreatest);
+                    leastNumbers.insert(*iter);
+                }
+            }
+        }
+        setIterator iterG = leastNumbers.begin();
+        for(; iterG!= leastNumbers.end(); ++iterG){
+            res.push_back(*iterG);
+        }
+        return res;
+    }
+};
+```
