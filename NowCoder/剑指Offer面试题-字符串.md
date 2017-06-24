@@ -255,8 +255,7 @@ sort(str.begin(), str.end());
 ### 面试题38-2拓展-字符串的组合
 
 #### 题目描述
-
-题目：输入一个字符串，打印出该字符串中字符的所有组合。例如输入字符串abc，则打印出由字符a、b、c所能组合出来的所有字符串a、b、c、ab、ac、bc和abc。
+输入一个字符串，打印出该字符串中字符的所有组合。例如输入字符串abc，则打印出由字符a、b、c所能组合出来的所有字符串a、b、c、ab、ac、bc和abc。
 
 #### 分析
 
@@ -299,5 +298,119 @@ public:
 		result.pop_back();
 		Combination(string + 1, number, result);
 	}
+};
+```
+
+### 面试题58-1-翻转单词顺序
+
+#### 题目描述
+
+牛客最近来了一个新员工Fish，每天早晨总是会拿着一本英文杂志，写些句子在本子上。同事Cat对Fish写的内容颇感兴趣，有一天他向Fish借来翻看，但却读不懂它的意思。例如，“student. a am I”。后来才意识到，这家伙原来把句子单词的顺序翻转了，正确的句子应该是“I am a student.”。Cat对一一的翻转这些单词顺序可不在行，你能帮助他么？
+
+#### 分析
+- 书上的思路，先整体翻转，然后以空格为间隔，单独翻转单词
+- 牛客上的大神，直接一个一个单词处理，后面读的单词加到前面来
+
+#### 代码
+- 剑指Offer版
+```c++
+class Solution {
+public:
+    string ReverseSentence(string str) {
+        if(str.length() <= 1){
+            return str;
+        }
+        Reverse(str, 0, str.length()-1);
+        int begin = 0; 
+        int end = 0;
+        while(begin < str.length()){
+            if(str[begin] == ' '){
+                ++begin;
+                ++end;
+            }else if(str[end] == ' ' || end == str.length()){
+                Reverse(str, begin, end - 1);
+                begin = end;
+            }else{
+                ++end;
+            }
+        }
+        return str;
+    }
+    void Reverse(string &str, int begin, int end){
+        if(begin == end){
+            return;
+        }
+        while(begin < end){
+            char temp = str[begin];
+            str[begin] = str[end];
+            str[end] = temp;
+            begin++;
+            end--;
+        }
+    }
+};
+```
+- 牛客大神版
+```c++
+class Solution {
+public:
+    string ReverseSentence(string str) {
+        string res = "", tmp = "";
+        for(unsigned int i = 0; i < str.size(); ++i){
+            if(str[i] == ' ') res = " " + tmp + res, tmp = "";
+            else tmp += str[i];
+        }
+        if(tmp.size()) res = tmp + res;
+        return res;
+    }
+}; 
+```
+
+### 面试题58-2-左旋转字符串
+
+#### 题目描述
+汇编语言中有一种移位指令叫做循环左移（ROL），现在有个简单的任务，就是用字符串模拟这个指令的运算结果。对于一个给定的字符序列S，请你把其循环左移K位后的序列输出。例如，字符序列S=”abcXYZdef”,要求输出循环左移3位后的结果，即“XYZdefabc”。是不是很简单？OK，搞定它！
+
+#### 分析
+利用上一题的翻转函数，通过三次翻转解决，同时利用内置的reverse函数也可以做到
+
+#### 代码
+- 剑指Offer版（自己实现Reverse翻转函数）
+```c++
+class Solution {
+public:
+    string LeftRotateString(string str, int n) {
+        if(str.length() <= 1 || n <= 0){
+            return str;
+        }
+        Reverse(str, 0, n - 1);
+        Reverse(str, n, str.length() - 1);
+        Reverse(str, 0, str.length() - 1);
+        return str;
+    }
+    void Reverse(string &str, int begin, int end){
+        if(begin >= end){
+            return;
+        }
+        while(begin < end){
+            char temp = str[begin];
+            str[begin] = str[end];
+            str[end] = temp;
+            ++begin;
+            --end;
+        }
+    }
+};
+```
+- 调用reverse库函数
+```c++
+class Solution {
+public:
+    string LeftRotateString(string str, int n) {
+        reverse(str.begin(),str.begin()+n);
+        reverse(str.begin()+n,str.end());
+        reverse(str.begin(),str.end());
+        return str;  
+    }
 };
 ```

@@ -764,3 +764,111 @@ public:
     }
 };
 ```
+
+### 面试题54-二叉搜索树的第k大节点
+
+#### 题目描述
+给定一棵二叉搜索树，请找出其中的第k大的结点。
+
+#### 分析
+中序遍历，注意边界条件，注意返回节点之后不再进行更多的遍历
+
+#### 代码
+```c
+const BinaryTreeNode* KthNodeCore(const BinaryTreeNode* pRoot, unsigned int& k);
+
+const BinaryTreeNode* KthNode(const BinaryTreeNode* pRoot, unsigned int k)
+{
+    if(pRoot == nullptr || k == 0)
+        return nullptr;
+
+    return KthNodeCore(pRoot, k);
+}
+
+const BinaryTreeNode* KthNodeCore(const BinaryTreeNode* pRoot, unsigned int& k)
+{
+    const BinaryTreeNode* target = nullptr;
+
+    if(pRoot->m_pLeft != nullptr)
+        target = KthNodeCore(pRoot->m_pLeft, k);
+
+    if(target == nullptr)
+    {
+        if(k == 1)
+            target = pRoot;
+
+        k--;
+    }
+
+    if(target == nullptr && pRoot->m_pRight != nullptr)
+        target = KthNodeCore(pRoot->m_pRight, k);
+
+    return target;
+}
+```
+
+### 面试题55-1-二叉树的深度
+
+#### 题目描述
+输入一棵二叉树，求该树的深度。从根结点到叶结点依次经过的结点（含根、叶结点）形成树的一条路径，最长路径的长度为树的深度。
+
+#### 分析
+递归实现，某个node的深度=max（node->left的深度，node->right的深度）+1
+
+#### 代码
+```c
+/*
+struct TreeNode {
+	int val;
+	struct TreeNode *left;
+	struct TreeNode *right;
+	TreeNode(int x) :
+			val(x), left(NULL), right(NULL) {
+	}
+};*/
+class Solution {
+public:
+    int TreeDepth(TreeNode* pRoot)
+    {
+    	if(pRoot == NULL){
+            return 0;
+        }
+        int left = TreeDepth(pRoot->left);
+        int right = TreeDepth(pRoot->right);
+        return left > right ? left + 1:right + 1;
+    }
+};
+```
+
+### 面试题55-2-平衡二叉树
+
+#### 题目描述
+输入一棵二叉树，判断该二叉树是否是平衡二叉树。
+
+#### 分析
+后序遍历，返回是否平衡以及当前的深度，当找到一个不平衡的子树时，其他的部分也就没有必要继续遍历了
+
+#### 代码
+```c
+class Solution {
+public:
+    bool IsBalanced_Solution(TreeNode* pRoot) {
+		int depth = 0;
+        return IsBalanced(pRoot, depth);
+    }
+    bool IsBalanced(const TreeNode* pRoot, int &depth){
+        if(pRoot == nullptr){
+            depth = 0;
+            return true;
+        }
+        int left, right;
+        if(IsBalanced(pRoot->left,left) && IsBalanced(pRoot->right,right)){
+            if(abs(left - right) <= 1){
+                depth = (left > right?left:right) + 1;
+                return true;
+            }
+        }
+        return false;
+    }
+};
+```

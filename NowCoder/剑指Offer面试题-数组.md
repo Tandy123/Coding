@@ -452,3 +452,211 @@ public:
     }
 };
 ```
+
+### 面试题56-1-数组中数字出现的次数
+
+#### 题目描述
+一个整型数组里除了两个数字之外，其他的数字都出现了两次。请写程序找出这两个只出现一次的数字。
+
+#### 分析
+用异或来做：两个相同的数字异或得到0，两个不同的数字异或一定存在某位为1，最巧妙的地方在于作者利用这两个性质对数组进行分组。
+
+#### 代码
+```c++
+class Solution {
+public:
+    void FindNumsAppearOnce(vector<int> data,int* num1,int *num2) {
+		if(data.size()  <= 1){
+            return;
+        }
+        int resultXOR = 0;
+        for(int i = 0; i < data.size(); ++i){
+            resultXOR ^= data[i];
+        }
+        unsigned int indexOf1 = FindFirstBitIs1(resultXOR);
+        *num1 = 0;
+        *num2 = 0;
+        for(int i = 0; i < data.size(); ++i){
+            if(IsBit1(data[i], indexOf1)){
+                *num1 ^= data[i];
+            }else{
+                *num2 ^= data[i];
+            }
+        }
+        return;
+    }
+    unsigned int FindFirstBitIs1(int num){
+        int indexOf1 = 0;
+        while(((num & 1) == 0) && indexOf1 < 8 * sizeof(int)){
+            num = num>>1;
+            ++indexOf1;
+        }
+        return indexOf1;
+    }
+    bool IsBit1(int num, unsigned int bit){
+        num = num >> bit;
+        return num & 1;
+    }
+};
+```
+
+### 面试题56-2-数组中唯一只出现一次的数字
+
+#### 题目描述
+在一个数组中除了一个数字只出现一次之外，其他数字都出现了三次。请找出那个吃出现一次的数字。
+
+#### 分析
+由于这次的重复次数是三，三个相同的数字异或还是本身，所以不能用异或来做，可以把二进制下每一位的数字相加，如果某一位的总和是三的整数倍，则要求的数字在该位上必为0，否则为1
+
+#### 代码
+```c++
+int FindNumberAppearingOnce(int numbers[], int length)
+{
+    if(numbers == nullptr || length <= 0)
+        throw new std::exception("Invalid input.");
+
+    int bitSum[32] = {0};
+    for(int i = 0; i < length; ++i)
+    {
+        int bitMask = 1;
+        for(int j = 31; j >= 0; --j)
+        {
+            int bit = numbers[i] & bitMask;
+            if(bit != 0)
+                bitSum[j] += 1;
+
+            bitMask = bitMask << 1;
+        }
+    }
+
+    int result = 0;
+    for(int i = 0; i < 32; ++i)
+    {
+        result = result << 1;
+        result += bitSum[i] % 3;
+    }
+
+    return result;
+}
+```
+
+### 面试题57-1-和为s的两个数字
+
+#### 题目描述
+输入一个递增排序的数组和一个数字S，在数组中查找两个数，是的他们的和正好是S，如果有多对数字的和等于S，输出两个数的乘积最小的。 
+
+#### 输出描述:
+对应每个测试案例，输出两个数，小的先输出。
+
+#### 分析
+设置头尾两个指针，进行夹逼，前提条件：有序
+
+#### 代码
+```c++
+class Solution {
+public:
+    vector<int> FindNumbersWithSum(vector<int> array,int sum) {
+        vector<int> result;
+        if(array.size() <= 0){
+            return result;
+        }
+        int ahead = 0;
+        int behind = array.size() - 1;
+        while(ahead < behind){
+            int curSum = array[ahead] + array[behind];
+            if(curSum > sum){
+                --behind;
+            }else if(curSum < sum){
+                ++ahead;
+            }else{
+                result.push_back(array[ahead]);
+                result.push_back(array[behind]);
+                break;
+            }
+        }
+        return result;
+    }
+};
+```
+
+### 面试题57-2-和为s的连续正数序列
+
+#### 题目描述
+小明很喜欢数学,有一天他在做数学作业时,要求计算出9~16的和,他马上就写出了正确答案是100。但是他并不满足于此,他在想究竟有多少种连续的正数序列的和为100(至少包括两个数)。没多久,他就得到另一组连续正数和为100的序列:18,19,20,21,22。现在把问题交给你,你能不能也很快的找出所有和为S的连续正数序列? Good Luck! 
+
+#### 输出描述:
+输出所有和为S的连续正数序列。序列内按照从小至大的顺序，序列间按照开始数字从小到大的顺序
+
+#### 分析
+两种思路
+- 思路一：剑指Offer上的，设置大小两个指针，计算当前的两个指针之间的数字和，和大了小指针前进，和小了大指针前进，知道小指针指向的数字超过(sum+1)/2为止
+- 思路二：根据求和公式：(start + end)(end - start + 1) = sum，直接求解一元二次方程组(start + end)(end - start + 1)=2*sum=k*l(k>l)，end=(k+l-1)/2  start =(k-l+1)/2，求出所有满足条件的整数解
+
+#### 代码
+- 思路一
+```c++
+class Solution {
+public:
+    vector<vector<int> > FindContinuousSequence(int sum) {
+        vector<vector<int>> res;
+        if(sum < 3){
+            return res;
+        }
+        int small = 1;
+        int big = 2;
+        int middle = (sum+1) / 2;
+        int curSum = small + big;
+        while(small < middle){
+            if(curSum == sum){
+                vector<int> temp;
+                for(int i = small; i <= big; ++i){
+                    temp.push_back(i);
+                }
+                res.push_back(temp);
+            }
+            while(curSum > sum && small < middle){
+                curSum -= small;
+                ++small;
+                if(curSum == sum){
+                    vector<int> temp;
+                    for(int i = small; i <= big; ++i){
+                        temp.push_back(i);
+                    }
+                    res.push_back(temp);
+                }
+            }
+            ++big;
+            curSum += big;
+        }
+        return res;
+    }
+};
+```
+- 思路二
+```c++
+class Solution {
+public:
+    vector<vector<int> > FindContinuousSequence(int sum) {
+        vector<vector<int>> res;
+        if(sum < 3){
+            return res;
+        }
+        int s = sqrt(2*sum);
+        for(int i = s; i >= 2; --i){
+            if((2*sum) % i == 0){
+                int d = (2*sum) / i;
+                if(((d & 1) == 0 && (i & 1)==1)||((d & 1) == 1 && (i & 1)==0)){
+                    int start = (d - i + 1)/2;
+                    int end = (d + i - 1)/2;
+                    vector<int> temp;
+                    for(int i = start; i <= end; ++i){
+                        temp.push_back(i);
+                    }
+                    res.push_back(temp);
+                }
+            }
+        }
+        return res;
+    }
+};
+```
