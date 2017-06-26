@@ -336,104 +336,90 @@ public:
 ### 面试题32-2-分行从上到下打印二叉树
 
 #### 题目描述
-从上到下按层打印二叉树，同一层的结点按从左到右的顺序打印，每一层打印到一行。
+牛客上面叫做把二叉树打印成多行
 
-#### 分析
-
-按层遍历，用队列实现，书上用的是双向队列deque，感觉并没有什么必要
-
-#### 代码
-
-```c
-struct BinaryTreeNode 
-{
-    int                    m_nValue; 
-    BinaryTreeNode*        m_pLeft;  
-    BinaryTreeNode*        m_pRight; 
-};
-void Print(BinaryTreeNode* pRoot)
-{
-	if (pRoot == nullptr)
-	{
-		return;
-	}
-	std::deque<BinaryTreeNode*> nodes;
-	nodes.push_back(pRoot);
-	int toBePrinted = 1;
-	int nextLevel = 0;
-	while (!nodes.empty()) {
-		BinaryTreeNode* pNode = nodes.front();
-		printf("%d ", pNode->m_nValue);
-		if (pNode->m_pLeft)
-		{
-			nodes.push_back(pNode->m_pLeft);
-			nextLevel++;
-		}
-		if (pNode->m_pRight)
-		{
-			nodes.push_back(pNode->m_pRight);
-			nextLevel++;
-		}
-		nodes.pop_front();
-		toBePrinted--;
-		if (toBePrinted == 0) {
-			toBePrinted = nextLevel;
-			nextLevel = 0;
-			printf("\n");
-		}
-	}
-}
-```
-
-### 面试题32-2-分行从上到下打印二叉树
-
-#### 题目描述
 从上到下按层打印二叉树，同一层的结点按从左到右的顺序打印，每一层打印到一行。
 
 #### 分析
 用队列进行层序遍历，同时用两个变量记录每层的数量，用于输出换行符
 
 #### 代码
-
+- 剑指Offer版：
 ```c
-struct BinaryTreeNode 
-{
-    int                    m_nValue; 
-    BinaryTreeNode*        m_pLeft;  
-    BinaryTreeNode*        m_pRight; 
+/*
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+    TreeNode(int x) :
+            val(x), left(NULL), right(NULL) {
+    }
 };
-void Print(BinaryTreeNode* pRoot)
-{
-	if (pRoot == nullptr)
-	{
-		return;
-	}
-	std::deque<BinaryTreeNode*> nodes;
-	nodes.push_back(pRoot);
-	int toBePrinted = 1;
-	int nextLevel = 0;
-	while (!nodes.empty()) {
-		BinaryTreeNode* pNode = nodes.front();
-		printf("%d ", pNode->m_nValue);
-		if (pNode->m_pLeft)
-		{
-			nodes.push_back(pNode->m_pLeft);
-			nextLevel++;
-		}
-		if (pNode->m_pRight)
-		{
-			nodes.push_back(pNode->m_pRight);
-			nextLevel++;
-		}
-		nodes.pop_front();
-		toBePrinted--;
-		if (toBePrinted == 0) {
-			toBePrinted = nextLevel;
-			nextLevel = 0;
-			printf("\n");
-		}
-	}
-}
+*/
+class Solution {
+public:
+        vector<vector<int> > Print(TreeNode* pRoot) {
+        	vector<vector<int> > res;
+            if(pRoot == nullptr){
+                return res;
+            }
+            queue<TreeNode*> nodes;
+            int nextLevel = 0;
+            int toBePrinted = 1;
+            nodes.push(pRoot);
+            vector<int> temp;
+            while(!nodes.empty()){
+                TreeNode* node = nodes.front();
+                temp.push_back(node->val);
+                if(node->left != nullptr){
+                    nodes.push(node->left);
+                    ++nextLevel;
+                }
+                if(node->right != nullptr){
+                    nodes.push(node->right);
+                    ++nextLevel;
+                }
+                --toBePrinted;
+                nodes.pop();
+                if(toBePrinted == 0){
+                    res.push_back(temp);
+                    temp.clear();
+                    toBePrinted = nextLevel;
+                    nextLevel = 0;
+                }
+            }
+            return res;
+        }    
+};
+```
+- 牛客大神版（每次记录队列的大小）：
+```c
+class Solution {
+public:
+        vector<vector<int> > Print(TreeNode* pRoot) {
+            vector<vector<int> > vec;
+            if(pRoot == NULL) return vec;
+ 
+            queue<TreeNode*> q;
+            q.push(pRoot);
+ 
+            while(!q.empty())
+            {
+                int lo = 0, hi = q.size();
+                vector<int> c;
+                while(lo++ < hi)
+                {
+                    TreeNode *t = q.front();
+                    q.pop();
+                    c.push_back(t->val);
+                    if(t->left) q.push(t->left);
+                    if(t->right) q.push(t->right);
+                }
+                vec.push_back(c);
+            }
+            return vec;
+        }
+};
 ```
 
 ### 面试题32-3-按之字形顺序打印二叉树
@@ -878,4 +864,74 @@ public:
         return false;
     }
 };
+```
+
+### 面试题68-树中两个结点的最低公共祖先
+
+#### 题目描述
+输入两个树结点，求它们的最低公共祖先。
+
+#### 分析
+这里没有说明树的什么树，加入是二叉搜索树，可以直接通过比大小得到公共祖先，加入是普通的数，但是每个节点有指向父节点的指针，可以抽象成求两个链表的的第一个公共结点问题（参考剑指Offer面试题52-两个链表的第一个公共结点），这里把树看成是普通的树，平并且没有指向父节点的指针
+
+#### 代码
+```c
+bool GetNodePath(const TreeNode* pRoot, const TreeNode* pNode, list<const TreeNode*>& path)
+{
+    if(pRoot == pNode)
+        return true;
+ 
+    path.push_back(pRoot);
+ 
+    bool found = false;
+
+    vector<TreeNode*>::const_iterator i = pRoot->m_vChildren.begin();
+    while(!found && i < pRoot->m_vChildren.end())
+    {
+        found = GetNodePath(*i, pNode, path);
+        ++i;
+    }
+ 
+    if(!found)
+        path.pop_back();
+ 
+    return found;
+}
+
+const TreeNode* GetLastCommonNode
+(
+    const list<const TreeNode*>& path1, 
+    const list<const TreeNode*>& path2
+)
+{
+    list<const TreeNode*>::const_iterator iterator1 = path1.begin();
+    list<const TreeNode*>::const_iterator iterator2 = path2.begin();
+    
+    const TreeNode* pLast = nullptr;
+ 
+    while(iterator1 != path1.end() && iterator2 != path2.end())
+    {
+        if(*iterator1 == *iterator2)
+            pLast = *iterator1;
+ 
+        iterator1++;
+        iterator2++;
+    }
+ 
+    return pLast;
+}
+
+const TreeNode* GetLastCommonParent(const TreeNode* pRoot, const TreeNode* pNode1, const TreeNode* pNode2)
+{
+    if(pRoot == nullptr || pNode1 == nullptr || pNode2 == nullptr)
+        return nullptr;
+ 
+    list<const TreeNode*> path1;
+    GetNodePath(pRoot, pNode1, path1);
+ 
+    list<const TreeNode*> path2;
+    GetNodePath(pRoot, pNode2, path2);
+ 
+    return GetLastCommonNode(path1, path2);
+}
 ```

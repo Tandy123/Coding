@@ -1,5 +1,141 @@
 ## 【牛客】剑指Offer面试题-数组
 
+
+### 面试题3-1-找出数组中重复的数字
+
+#### 题目描述
+
+在一个长度为n的数组里的所有数字都在0到n-1的范围内。 数组中某些数字是重复的，但不知道有几个数字是重复的。也不知道每个数字重复几次。请找出数组中任意一个重复的数字。 例如，如果输入长度为7的数组{2,3,1,0,2,5,3}，那么对应的输出是第一个重复的数字2
+
+#### 分析
+
+和书上的要求不一样，书上的要求是：  
+在一个长度为n的数组里的所有数字都在0到n-1的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。例如，如果输入长度为7的数组{2, 3, 1, 0, 2, 5, 3}，那么对应的输出是重复的数字2或者3。  
+如果按照书上的要求做，找出来的不一定是第一个重复的数字，  
+牛客上的做法很巧妙，通过现有的数组设置标记，当一个数字被访问之后，可以设置对应位上上的数字+n，之后再遇到相同的数字时，会发现对应位上的数已经大于等于n了，那么直接返回这个数即可。
+
+#### 代码
+- 牛客大神版：
+```c
+class Solution {
+public:
+    // Parameters:
+    //        numbers:     an array of integers
+    //        length:      the length of array numbers
+    //        duplication: (Output) the duplicated number in the array number
+    // Return value:       true if the input is valid, and there are some duplications in the array number
+    //                     otherwise false
+    bool duplicate(int numbers[], int length, int* duplication) {
+        if(numbers == nullptr || length <= 0){
+            return false;
+        }
+        for(int i = 0; i < length; ++i){
+            int num = numbers[i];
+            if(num > length){
+                num -= length;
+            }
+            if(numbers[num] > length){
+                *duplication = num;
+                return true;
+            }
+            numbers[num] += length;
+        }
+        return false;
+    }
+};
+```
+- 剑指Offer版：
+```c
+class Solution {
+public:
+    // Parameters:
+    //        numbers:     an array of integers
+    //        length:      the length of array numbers
+    //        duplication: (Output) the duplicated number in the array number
+    // Return value:       true if the input is valid, and there are some duplications in the array number
+    //                     otherwise false
+    bool duplicate(int numbers[], int length, int* duplication) {
+        if(numbers == nullptr || length <=0){
+            return false;
+        }
+        for(int i = 0; i < length; ++i){
+            if(numbers[i]<0 || numbers[i]>=length){
+                return false;
+            }
+        }
+        for(int i = 0; i < length; ++i){
+            while(numbers[i] != i){
+                if(numbers[i] == numbers[numbers[i]]){
+                    *duplication = numbers[i];
+                    return true;
+                }
+                swap(numbers[i], numbers[numbers[i]]);
+            }
+        }
+        return false;
+    }
+};
+```
+
+### 面试题3-2-不修改数组找出重复的数字
+
+#### 题目描述
+
+在一个长度为n+1的数组里的所有数字都在1到n的范围内，所以数组中至少有一个数字是重复的。请找出数组中任意一个重复的数字，但不能修改输入的数组。例如，如果输入长度为8的数组{2, 3, 5, 4, 3, 2, 6, 7}，那么对应的输出是重复的数字2或者3。
+
+#### 分析
+
+按照二分查找的思想，这种解法不能保证找出所有的重复数字。
+
+#### 代码
+
+```c
+int countRange(const int* numbers, int length, int start, int end);
+// 参数:
+//        numbers:     一个整数数组
+//        length:      数组的长度
+// 返回值:             
+//        正数  - 输入有效，并且数组中存在重复的数字，返回值为重复的数字
+//        负数  - 输入无效，或者数组中没有重复的数字
+int getDuplication(const int* numbers, int length)
+{
+    if(numbers == nullptr || length <= 0)
+        return -1;
+    int start = 1;
+    int end = length - 1;
+    while(end >= start)
+    {
+       int middle = ((end - start) >> 1) + start;
+		//int middle = (end + start) / 2;
+        int count = countRange(numbers, length, start, middle);
+        if(end == start)
+        {
+            if(count > 1)
+                return start;
+            else
+                break;
+        }
+
+        if(count > (middle - start + 1))
+            end = middle;
+        else
+            start = middle + 1;
+    }
+    return -1;
+}
+int countRange(const int* numbers, int length, int start, int end)
+{
+    if(numbers == nullptr)
+        return 0;
+
+    int count = 0;
+    for(int i = 0; i < length; i++)
+        if(numbers[i] >= start && numbers[i] <= end)
+            ++count;
+    return count;
+}
+```
+
 ### 面试题4-二维数组中的查找
 
 #### 题目描述
