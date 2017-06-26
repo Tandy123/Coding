@@ -768,43 +768,50 @@ public:
 ### 面试题54-二叉搜索树的第k大节点
 
 #### 题目描述
-给定一棵二叉搜索树，请找出其中的第k大的结点。
+给定一颗二叉搜索树，请找出其中的第k大的结点。例如， 5 / \ 3 7 /\ /\ 2 4 6 8 中，按结点数值大小顺序第三个结点的值为4。
 
 #### 分析
 中序遍历，注意边界条件，注意返回节点之后不再进行更多的遍历
 
 #### 代码
 ```c
-const BinaryTreeNode* KthNodeCore(const BinaryTreeNode* pRoot, unsigned int& k);
-
-const BinaryTreeNode* KthNode(const BinaryTreeNode* pRoot, unsigned int k)
-{
-    if(pRoot == nullptr || k == 0)
-        return nullptr;
-
-    return KthNodeCore(pRoot, k);
-}
-
-const BinaryTreeNode* KthNodeCore(const BinaryTreeNode* pRoot, unsigned int& k)
-{
-    const BinaryTreeNode* target = nullptr;
-
-    if(pRoot->m_pLeft != nullptr)
-        target = KthNodeCore(pRoot->m_pLeft, k);
-
-    if(target == nullptr)
-    {
-        if(k == 1)
-            target = pRoot;
-
-        k--;
+/*
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+    TreeNode(int x) :
+            val(x), left(NULL), right(NULL) {
     }
-
-    if(target == nullptr && pRoot->m_pRight != nullptr)
-        target = KthNodeCore(pRoot->m_pRight, k);
-
-    return target;
-}
+};
+*/
+class Solution {
+public:
+    TreeNode* KthNode(TreeNode* pRoot, int k)
+    {
+        if(pRoot == nullptr || k <= 0){
+            return nullptr;
+        }
+        return KthNodeCore(pRoot, k);
+    }
+    TreeNode* KthNodeCore(TreeNode* pRoot, int &k){
+        TreeNode* node = nullptr;
+        if(pRoot->left != nullptr){
+            node = KthNodeCore(pRoot->left, k);
+        }
+        if(node == nullptr){
+            if(k == 1){
+                node = pRoot;
+            }else{
+                k--;
+            }
+        }
+        if(node == nullptr && pRoot->right != nullptr){
+            node = KthNodeCore(pRoot->right, k);
+        }
+        return node;
+    }
+};
 ```
 
 ### 面试题55-1-二叉树的深度
